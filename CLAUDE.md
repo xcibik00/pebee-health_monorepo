@@ -59,6 +59,15 @@ root/                          ← monorepo, single git repo
 - All API endpoints validated with Zod on the backend
 - Secrets via environment variables only — never committed to git
 - Docker Compose used for local dev; all services defined there
+- **Package manager: pnpm** — chosen for monorepo efficiency; `pnpm-workspace.yaml` links `apps/*` and `packages/*`
+- **Shared types package name: `@pebee/types`** — imported via `workspace:*` protocol in web and backend
+- **`apps/mobile/` scaffold is complete** — `flutter create` was run; native iOS/Android project files exist
+- **Do not scaffold web or backend with CLI interactively** — structure is already in place; use `pnpm install` to resolve deps
+- **Flutter auth: repository pattern + Riverpod AsyncNotifier** — `AuthRepository` is the single Supabase boundary; `AuthNotifier` exposes async state; screens only import `auth_provider.dart` or `auth_repository.dart` (never `supabase_flutter`)
+- **Typed domain exceptions in repository layer** — e.g. `EmailNotConfirmedException`, `ResendRateLimitedException`; UI detects these by type, never by string-matching error messages
+- **Supabase OTP type for email verification: `OtpType.signup`** — used for both `verifyOTP` and `resend`; Supabase sends 8-digit codes (not 6)
+- **User profile synced via Postgres trigger** — `handle_new_user()` on `auth.users` INSERT writes to `public.profiles`; metadata keys: `first_name`, `last_name`, `locale`
+- **Locale default in profiles: `'en'`** — `COALESCE(raw_user_meta_data->>'locale', 'en')` in trigger
 
 ---
 
@@ -66,8 +75,13 @@ root/                          ← monorepo, single git repo
 
 > Update this at the start/end of every session.
 
-**Status:** Project setup / initial planning phase  
-**Next up:** Scaffold monorepo structure, initialize apps, configure docker-compose
+**Status:** Flutter mobile app — full auth flow complete and running on device
+**Next up (Session 5) — in order:**
+1. **Widget tests** for all auth screens (login, signup, email verification) — must be done before any new feature; DoD not met until tests pass
+2. **Splash screen** — branded launch screen with Pebee Health logo (iOS + Android native splash + Flutter-level)
+3. **App logo / icon** — set app icon for iOS and Android using `flutter_launcher_icons`
+4. Plan and implement the first post-auth feature (e.g. user profile screen or onboarding flow)
+5. Begin NestJS backend — scaffold `auth` module, protect endpoints with JWT middleware
 
 ---
 
@@ -75,7 +89,50 @@ root/                          ← monorepo, single git repo
 
 > Move items here when done, with brief notes.
 
-*(nothing yet)*
+### Session 1 — Initial planning
+- Created `CLAUDE.md` (this file) as the working agreement and project context
+
+### Session 2 — Architecture docs + monorepo scaffold
+- Populated `PLANS/00-architecture.md` — full system architecture: topology diagram, per-app breakdown, security model, data flow, folder structure, conventions, MVP boundaries
+- Created root `.gitignore` — covers Node, Flutter, iOS, Android, Docker, env files, IDE files
+- Created `pnpm-workspace.yaml` — links `apps/*` and `packages/*`
+- Created root `package.json` — top-level scripts for dev, build, lint, test, typecheck
+- Created `docker-compose.yml` — backend service + Postgres (note: full Supabase local uses `supabase start` via CLI)
+- Scaffolded `packages/types/` — `@pebee/types` package with `tsconfig.json`, `src/index.ts`, and starter `User` interface
+- Scaffolded `apps/web/` — `package.json`, `tsconfig.json`, `.env.example`, route group structure `(public)/` and `(admin)/`
+- Scaffolded `apps/backend/` — `package.json`, `tsconfig.json`, `.env.example`, `Dockerfile`, `src/main.ts`, `src/app.module.ts`
+- Created `apps/mobile/.gitkeep` — placeholder pending `flutter create`
+
+### Sessions 3 & 4 — Flutter mobile auth flow (complete)
+**Auth screens & navigation**
+- `LoginScreen` — email + password, error banner, language switcher top-right
+- `SignupScreen` — first/last name, email, password + confirm (single shared eye icon), error banner
+- `EmailVerificationScreen` — 8-digit OTP input, 5-attempt lock, 60s resend cooldown, rate-limit detection
+- GoRouter auth guard — redirects unauthenticated users to `/login`, post-verify auto-redirect to `/home` via Supabase auth stream
+
+**Auth logic (repository + provider)**
+- `AuthRepository` — wraps all Supabase auth calls; rest of app never imports `supabase_flutter`
+- Typed domain exceptions: `EmailNotConfirmedException` (unverified login), `ResendRateLimitedException` (429 on resend)
+- `AuthNotifier` (Riverpod `AsyncNotifier`) — `signIn`, `signUp`, `verifyOtp`, `resendOtp`, `signOut`, `reset`
+- Unverified user re-entry: login with unconfirmed email → `EmailNotConfirmedException` → auto-redirect to verification screen with email pre-filled
+
+**Localisation**
+- 4 languages: SK (default), EN, UK, DE — `assets/translations/*.json`
+- `LanguageSwitcher` widget on login screen — flag + 2-char ISO code, animated active border
+- Locale stored in Supabase `raw_user_meta_data` on signup for future localised Edge Function emails
+
+**Database (Supabase)**
+- `public.profiles` table: `id`, `email`, `first_name`, `last_name`, `locale`, `created_at`
+- Postgres trigger `handle_new_user()` — fires on `auth.users` INSERT, syncs metadata into `profiles`
+- RLS policies: users read/update own row; service role full access
+
+**Debug tooling**
+- `_AppProviderObserver` (debug-only, gated by `kDebugMode`) — logs all Riverpod `AsyncError`/`AsyncLoading`/`AsyncData` events with full stack traces to terminal
+
+**Bug fixes this session**
+- Stale error banner on verification screen on arrival from login → fixed with `reset()` post-frame in `initState`
+- Silent resend failure → fixed with explicit error snackbars (`resendFailed`, `resendRateLimited`)
+- 429 rate-limit on resend now starts the cooldown timer to block repeated hammering
 
 ---
 
@@ -195,7 +252,13 @@ A task or feature is **NOT done** until all of the following are true:
 | Shared types | `packages/types/` |
 | Environment variable examples | `apps/backend/.env.example`, `apps/web/.env.example` |
 | Local dev orchestration | `docker-compose.yml` |
+| Flutter app entry point | `apps/mobile/lib/main.dart` |
+| Flutter router | `apps/mobile/lib/core/router/app_router.dart` |
+| Auth repository (Supabase boundary) | `apps/mobile/lib/features/auth/data/auth_repository.dart` |
+| Auth provider (Riverpod state) | `apps/mobile/lib/features/auth/providers/auth_provider.dart` |
+| Translations | `apps/mobile/assets/translations/` (sk, en, uk, de) |
+| Theme & colours | `apps/mobile/lib/core/theme/` |
 
 ---
 
-*Last updated: Session 1 — Initial project setup & planning*
+*Last updated: Sessions 3 & 4 — Flutter mobile auth flow*

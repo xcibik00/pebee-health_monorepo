@@ -1,0 +1,3 @@
+# This directory will be populated by `flutter create .` once Flutter SDK is installed.
+# Run from the monorepo root:
+#   cd apps/mobile && flutter create . --org com.pebeehealth --project-name pebee_mobile

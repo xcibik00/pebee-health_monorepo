@@ -1,0 +1,62 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "emailLabel": "Email",
+      "emailHint": "your@email.com",
+      "passwordLabel": "Password",
+      "passwordHint": "Minimum 8 characters",
+      "signInButton": "Sign in",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
+      "forgotPassword": "Forgot password?",
+      "error": "Invalid email or password"
+    },
+    "signup": {
+      "title": "Create account",
+      "subtitle": "Register for free",
+      "firstNameLabel": "First name",
+      "firstNameHint": "Your first name",
+      "lastNameLabel": "Last name",
+      "lastNameHint": "Your last name",
+      "emailLabel": "Email",
+      "emailHint": "your@email.com",
+      "passwordLabel": "Password",
+      "passwordHint": "Minimum 8 characters",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordHint": "Repeat password",
+      "createButton": "Create account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "error": "Registration failed. Please try again."
+    },
+    "verification": {
+      "title": "Check your email",
+      "messagePre": "We sent an 8-digit verification code to",
+      "codeLabel": "Verification code",
+      "verifyButton": "Verify",
+      "noCode": "Didn't receive a code?",
+      "resend": "Resend",
+      "resendSuccess": "Code resent successfully",
+      "resendFailed": "Failed to resend code. Please try again.",
+      "resendRateLimited": "Too many resend attempts. Please wait a moment.",
+      "backToLogin": "Back to sign in",
+      "error": "Invalid or expired code. Please try again.",
+      "resendIn": "Resend in {seconds}s",
+      "tooManyAttempts": "Too many attempts. Please request a new code.",
+      "attemptsLeft": "Attempts remaining: {remaining}"
+    }
+  },
+  "validation": {
+    "emailRequired": "Enter your email",
+    "emailInvalid": "Enter a valid email",
+    "passwordRequired": "Enter your password",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "firstNameRequired": "Enter your first name",
+    "lastNameRequired": "Enter your last name",
+    "passwordMismatch": "Passwords do not match",
+    "otpRequired": "Enter the verification code",
+    "otpInvalid": "Code must be 8 digits"
+  }
+}

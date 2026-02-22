@@ -1,0 +1,62 @@
+{
+  "auth": {
+    "login": {
+      "title": "Vitaj späť",
+      "subtitle": "Prihlás sa do svojho účtu",
+      "emailLabel": "Email",
+      "emailHint": "tvoj@email.com",
+      "passwordLabel": "Heslo",
+      "passwordHint": "Minimálne 8 znakov",
+      "signInButton": "Prihlásiť sa",
+      "noAccount": "Nemáš účet?",
+      "createAccount": "Registrovať sa",
+      "forgotPassword": "Zabudol si heslo?",
+      "error": "Nesprávny email alebo heslo"
+    },
+    "signup": {
+      "title": "Vytvoriť účet",
+      "subtitle": "Registruj sa zadarmo",
+      "firstNameLabel": "Meno",
+      "firstNameHint": "Tvoje meno",
+      "lastNameLabel": "Priezvisko",
+      "lastNameHint": "Tvoje priezvisko",
+      "emailLabel": "Email",
+      "emailHint": "tvoj@email.com",
+      "passwordLabel": "Heslo",
+      "passwordHint": "Minimálne 8 znakov",
+      "confirmPasswordLabel": "Potvrď heslo",
+      "confirmPasswordHint": "Zopakuj heslo",
+      "createButton": "Vytvoriť účet",
+      "alreadyHaveAccount": "Už máš účet?",
+      "signIn": "Prihlásiť sa",
+      "error": "Registrácia sa nepodarila. Skús to znova."
+    },
+    "verification": {
+      "title": "Skontroluj email",
+      "messagePre": "Poslali sme ti 8-ciferný overovací kód na",
+      "codeLabel": "Overovací kód",
+      "verifyButton": "Overiť",
+      "noCode": "Neprišiel ti kód?",
+      "resend": "Poslať znova",
+      "resendSuccess": "Kód bol znova odoslaný",
+      "resendFailed": "Nepodarilo sa odoslať kód. Skús to znova.",
+      "resendRateLimited": "Príliš veľa pokusov o odoslanie. Počkaj chvíľu.",
+      "backToLogin": "Späť na prihlásenie",
+      "error": "Nesprávny alebo vypršaný kód. Skús to znova.",
+      "resendIn": "Poslať znova za {seconds}s",
+      "tooManyAttempts": "Príliš veľa pokusov. Vyžiadaj nový kód.",
+      "attemptsLeft": "Zostávajúce pokusy: {remaining}"
+    }
+  },
+  "validation": {
+    "emailRequired": "Zadaj email",
+    "emailInvalid": "Zadaj platný email",
+    "passwordRequired": "Zadaj heslo",
+    "passwordTooShort": "Heslo musí mať aspoň 8 znakov",
+    "firstNameRequired": "Zadaj meno",
+    "lastNameRequired": "Zadaj priezvisko",
+    "passwordMismatch": "Heslá sa nezhodujú",
+    "otpRequired": "Zadaj overovací kód",
+    "otpInvalid": "Kód musí mať 8 číslic"
+  }
+}

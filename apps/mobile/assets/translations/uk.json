@@ -1,0 +1,62 @@
+{
+  "auth": {
+    "login": {
+      "title": "Ласкаво просимо",
+      "subtitle": "Увійдіть до свого облікового запису",
+      "emailLabel": "Електронна пошта",
+      "emailHint": "ваш@email.com",
+      "passwordLabel": "Пароль",
+      "passwordHint": "Мінімум 8 символів",
+      "signInButton": "Увійти",
+      "noAccount": "Немає облікового запису?",
+      "createAccount": "Зареєструватися",
+      "forgotPassword": "Забули пароль?",
+      "error": "Неправильний email або пароль"
+    },
+    "signup": {
+      "title": "Створити обліковий запис",
+      "subtitle": "Зареєструйтеся безкоштовно",
+      "firstNameLabel": "Ім'я",
+      "firstNameHint": "Ваше ім'я",
+      "lastNameLabel": "Прізвище",
+      "lastNameHint": "Ваше прізвище",
+      "emailLabel": "Електронна пошта",
+      "emailHint": "ваш@email.com",
+      "passwordLabel": "Пароль",
+      "passwordHint": "Мінімум 8 символів",
+      "confirmPasswordLabel": "Підтвердіть пароль",
+      "confirmPasswordHint": "Повторіть пароль",
+      "createButton": "Створити обліковий запис",
+      "alreadyHaveAccount": "Вже є обліковий запис?",
+      "signIn": "Увійти",
+      "error": "Реєстрація не вдалася. Спробуйте ще раз."
+    },
+    "verification": {
+      "title": "Перевірте пошту",
+      "messagePre": "Ми надіслали 8-значний код підтвердження на",
+      "codeLabel": "Код підтвердження",
+      "verifyButton": "Підтвердити",
+      "noCode": "Не отримали код?",
+      "resend": "Надіслати знову",
+      "resendSuccess": "Код надіслано повторно",
+      "resendFailed": "Не вдалося надіслати код. Спробуйте ще раз.",
+      "resendRateLimited": "Забагато спроб надсилання. Зачекайте хвилину.",
+      "resendIn": "Надіслати знову через {seconds}с",
+      "backToLogin": "Назад до входу",
+      "error": "Неправильний або застарілий код. Спробуйте ще раз.",
+      "tooManyAttempts": "Забагато спроб. Запросіть новий код.",
+      "attemptsLeft": "Залишилось спроб: {remaining}"
+    }
+  },
+  "validation": {
+    "emailRequired": "Введіть email",
+    "emailInvalid": "Введіть дійсний email",
+    "passwordRequired": "Введіть пароль",
+    "passwordTooShort": "Пароль повинен містити щонайменше 8 символів",
+    "firstNameRequired": "Введіть ім'я",
+    "lastNameRequired": "Введіть прізвище",
+    "passwordMismatch": "Паролі не збігаються",
+    "otpRequired": "Введіть код підтвердження",
+    "otpInvalid": "Код повинен містити 8 цифр"
+  }
+}

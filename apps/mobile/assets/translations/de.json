@@ -1,0 +1,62 @@
+{
+  "auth": {
+    "login": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melde dich bei deinem Konto an",
+      "emailLabel": "E-Mail",
+      "emailHint": "deine@email.com",
+      "passwordLabel": "Passwort",
+      "passwordHint": "Mindestens 8 Zeichen",
+      "signInButton": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "createAccount": "Registrieren",
+      "forgotPassword": "Passwort vergessen?",
+      "error": "Falsche E-Mail oder Passwort"
+    },
+    "signup": {
+      "title": "Konto erstellen",
+      "subtitle": "Kostenlos registrieren",
+      "firstNameLabel": "Vorname",
+      "firstNameHint": "Dein Vorname",
+      "lastNameLabel": "Nachname",
+      "lastNameHint": "Dein Nachname",
+      "emailLabel": "E-Mail",
+      "emailHint": "deine@email.com",
+      "passwordLabel": "Passwort",
+      "passwordHint": "Mindestens 8 Zeichen",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "confirmPasswordHint": "Passwort wiederholen",
+      "createButton": "Konto erstellen",
+      "alreadyHaveAccount": "Schon ein Konto?",
+      "signIn": "Anmelden",
+      "error": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
+    },
+    "verification": {
+      "title": "E-Mail überprüfen",
+      "messagePre": "Wir haben einen 8-stelligen Bestätigungscode gesendet an",
+      "codeLabel": "Bestätigungscode",
+      "verifyButton": "Bestätigen",
+      "noCode": "Keinen Code erhalten?",
+      "resend": "Erneut senden",
+      "resendSuccess": "Code erneut gesendet",
+      "resendFailed": "Code konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "resendRateLimited": "Zu viele Sendeversuche. Bitte warte einen Moment.",
+      "resendIn": "Erneut senden in {seconds}s",
+      "backToLogin": "Zurück zur Anmeldung",
+      "error": "Ungültiger oder abgelaufener Code. Bitte versuche es erneut.",
+      "tooManyAttempts": "Zu viele Versuche. Bitte fordere einen neuen Code an.",
+      "attemptsLeft": "Verbleibende Versuche: {remaining}"
+    }
+  },
+  "validation": {
+    "emailRequired": "E-Mail eingeben",
+    "emailInvalid": "Gültige E-Mail eingeben",
+    "passwordRequired": "Passwort eingeben",
+    "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
+    "firstNameRequired": "Vorname eingeben",
+    "lastNameRequired": "Nachname eingeben",
+    "passwordMismatch": "Passwörter stimmen nicht überein",
+    "otpRequired": "Bestätigungscode eingeben",
+    "otpInvalid": "Code muss 8 Ziffern haben"
+  }
+}

@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  # ─── NestJS Backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: pebee-backend
+    ports:
+      - '3001:3001'
+    env_file:
+      - ./apps/backend/.env
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+    depends_on:
+      - supabase-db
+    restart: unless-stopped
+
+  # ─── Supabase Local (Postgres) ────────────────────────────────────────────────
+  # For full local Supabase, use the Supabase CLI: `supabase start`
+  # This service is a lightweight Postgres fallback for CI / simple local dev.
+  supabase-db:
+    image: postgres:15-alpine
+    container_name: pebee-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pebee
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
