@@ -135,3 +135,51 @@
 **Consequences:** If new profile fields are needed at signup time, they must be: (1) passed in `data` map during `signUp`, (2) added as a column in `public.profiles`, and (3) referenced in the trigger function. Any schema change requires a Supabase SQL migration.
 
 ---
+
+## ADR-012 — Widget test infrastructure: mocktail + FakeAuthNotifier
+**Date:** Session 5
+**Status:** Accepted
+
+**Decision:** Widget tests use `mocktail` (no codegen) with a hand-written `FakeAuthNotifier` that extends `AuthNotifier` with configurable errors and call-tracking flags. EasyLocalization uses `_EmptyAssetLoader` so `.tr()` returns raw key strings. GoRouter in tests uses placeholder routes for navigation assertions.
+
+**Rationale:** `FakeAuthNotifier` gives full control over async state transitions (loading → error/success) without mocking framework complexity. Raw translation keys in tests are more stable than translated strings and don't require loading JSON assets.
+
+**Consequences:** When adding new `AuthNotifier` methods, also update `FakeAuthNotifier` in `test/helpers/mocks.dart`. Test files use `find.text('auth.login.title')` (key) not `find.text('Prihlásenie')` (translated).
+
+---
+
+## ADR-013 — Native splash via `flutter_native_splash` with preserve/remove pattern
+**Date:** Session 5
+**Status:** Accepted
+
+**Decision:** Use `flutter_native_splash` package to generate iOS/Android native splash screens. The native splash shows the full Pebee Health logo on cream background (#F2EDE7). `FlutterNativeSplash.preserve()` keeps it visible through all async init; `.remove()` is called just before `runApp()`.
+
+**Rationale:** Native splash eliminates the white flash before Flutter engine boots. The preserve/remove pattern ensures a seamless visual transition from native splash → Flutter splash → auth screen.
+
+**Consequences:** After any change to `flutter_native_splash` config in `pubspec.yaml`, re-run `dart run flutter_native_splash:create`. Do not manually edit the generated native resources.
+
+---
+
+## ADR-014 — Flutter splash route as `initialLocation`
+**Date:** Session 5
+**Status:** Accepted
+
+**Decision:** GoRouter `initialLocation` is now `/` (splash screen). The redirect logic handles three states: (1) auth loading → stay on splash, (2) auth resolved + logged in → `/home`, (3) auth resolved + not logged in → `/login`. The `SplashScreen` widget is a simple `StatelessWidget` with no navigation logic — the router handles everything.
+
+**Rationale:** Prevents the "login flash" for returning users (previously: native splash → login → redirect to home). Centralises all navigation decisions in the router redirect, keeping the splash widget dumb.
+
+**Consequences:** The splash route `/` should never be deep-linked to externally. Any new route must be categorised as auth route or protected route in the redirect logic.
+
+---
+
+## ADR-015 — App icon: golden bars on purple, generated via `flutter_launcher_icons`
+**Date:** Session 5
+**Status:** Accepted
+
+**Decision:** App icon uses only the golden bar icon mark (`#fbbf69`) on a solid purple background (`#6B68E6`). `icon_bars.svg` is the canonical source. PNGs are generated via `rsvg-convert` + `imagemagick`, then `flutter_launcher_icons` produces all required sizes for both platforms. Android adaptive icons use the purple as background colour and bars as foreground.
+
+**Rationale:** Text is unreadable at small icon sizes (29x29), so icon-only is standard practice. Purple + gold matches the brand identity and provides high contrast in app drawers.
+
+**Consequences:** After any change to icon source files, re-run the generation pipeline: `rsvg-convert` → `magick` → `dart run flutter_launcher_icons`. The `assets/logo/` directory contains both source SVGs and generated PNGs.
+
+---

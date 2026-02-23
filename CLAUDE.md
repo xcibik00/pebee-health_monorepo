@@ -68,6 +68,11 @@ root/                          ← monorepo, single git repo
 - **Supabase OTP type for email verification: `OtpType.signup`** — used for both `verifyOTP` and `resend`; Supabase sends 8-digit codes (not 6)
 - **User profile synced via Postgres trigger** — `handle_new_user()` on `auth.users` INSERT writes to `public.profiles`; metadata keys: `first_name`, `last_name`, `locale`
 - **Locale default in profiles: `'en'`** — `COALESCE(raw_user_meta_data->>'locale', 'en')` in trigger
+- **Widget test infrastructure** — `mocktail` for mocking (no codegen), `FakeAuthNotifier` pattern with configurable errors/call tracking, `_EmptyAssetLoader` so `.tr()` returns raw keys for assertion
+- **Native splash via `flutter_native_splash`** — cream background (#F2EDE7) + full logo; `preserve()`/`remove()` in `main()` bridges to Flutter
+- **Flutter splash route at `/` as `initialLocation`** — router redirect handles auth-loading state; prevents login-screen flash for returning users
+- **App icon: golden bars on purple `#6B68E6`** — adaptive icon on Android, standard icon on iOS; generated via `flutter_launcher_icons`
+- **Icon bars extracted as standalone SVG** — `assets/logo/icon_bars.svg` is the canonical source for the icon mark
 
 ---
 
@@ -75,13 +80,11 @@ root/                          ← monorepo, single git repo
 
 > Update this at the start/end of every session.
 
-**Status:** Flutter mobile app — full auth flow complete and running on device
-**Next up (Session 5) — in order:**
-1. **Widget tests** for all auth screens (login, signup, email verification) — must be done before any new feature; DoD not met until tests pass
-2. **Splash screen** — branded launch screen with Pebee Health logo (iOS + Android native splash + Flutter-level)
-3. **App logo / icon** — set app icon for iOS and Android using `flutter_launcher_icons`
-4. Plan and implement the first post-auth feature (e.g. user profile screen or onboarding flow)
-5. Begin NestJS backend — scaffold `auth` module, protect endpoints with JWT middleware
+**Status:** Flutter mobile app — auth flow complete, tested, branded splash + app icon done
+**Next up (Session 6) — in order:**
+1. Plan and implement the first post-auth feature (e.g. user profile screen or onboarding flow)
+2. Begin NestJS backend — scaffold `auth` module, protect endpoints with JWT middleware
+3. Set up iOS development environment (Xcode, provisioning) and verify splash/icon on iOS
 
 ---
 
@@ -133,6 +136,28 @@ root/                          ← monorepo, single git repo
 - Stale error banner on verification screen on arrival from login → fixed with `reset()` post-frame in `initState`
 - Silent resend failure → fixed with explicit error snackbars (`resendFailed`, `resendRateLimited`)
 - 429 rate-limit on resend now starts the cooldown timer to block repeated hammering
+
+### Session 5 — Widget tests + splash screen + app icon
+**Widget tests (30 tests, all passing)**
+- Test infrastructure: `test/helpers/test_app.dart` (`pumpApp` helper with EasyLocalization + GoRouter + Riverpod), `test/helpers/mocks.dart` (`FakeAuthNotifier`)
+- `PasswordField` widget test — 6 tests (render, obscure, toggle, external control, validator)
+- `LoginScreen` widget test — 7 tests (render, validation, signIn, error banner, EmailNotConfirmedException navigation)
+- `SignupScreen` widget test — 8 tests (render, validation, signUp, navigation, error banner, eye icon toggle)
+- `EmailVerificationScreen` widget test — 9 tests (render, reset on mount, validation, verifyOtp, error banner, resend, back navigation)
+- Added `mocktail: ^1.0.4` and `shared_preferences: ^2.3.0` dev dependencies
+- Deleted stale placeholder `test/widget_test.dart`
+
+**Branded splash screen**
+- Native splash via `flutter_native_splash` — cream background (#F2EDE7) + full Pebee Health logo (purple text + golden bars)
+- `main.dart` uses `FlutterNativeSplash.preserve()`/`.remove()` to bridge native → Flutter splash
+- Flutter-level `SplashScreen` at route `/` (new `initialLocation`) — same visual as native splash
+- Router redirect updated: loading state → stay on splash; auth resolved → `/login` or `/home`; prevents login-screen flash for returning users
+
+**App icon**
+- Generated `icon_bars.svg` — standalone SVG with just the 3 golden bars, extracted from logo coordinates
+- Converted SVGs to PNGs via `rsvg-convert` + `imagemagick`: `splash_logo.png` (1200x1200), `app_icon.png` (1024x1024, bars on purple), `app_icon_foreground.png` (adaptive icon)
+- `flutter_launcher_icons` generates all iOS/Android icon sizes
+- Android debug build verified successfully
 
 ---
 
@@ -258,7 +283,10 @@ A task or feature is **NOT done** until all of the following are true:
 | Auth provider (Riverpod state) | `apps/mobile/lib/features/auth/providers/auth_provider.dart` |
 | Translations | `apps/mobile/assets/translations/` (sk, en, uk, de) |
 | Theme & colours | `apps/mobile/lib/core/theme/` |
+| Splash screen | `apps/mobile/lib/features/splash/presentation/screens/splash_screen.dart` |
+| Logo assets (SVG + PNG) | `apps/mobile/assets/logo/` |
+| Test helpers | `apps/mobile/test/helpers/` (test_app.dart, mocks.dart) |
 
 ---
 
-*Last updated: Sessions 3 & 4 — Flutter mobile auth flow*
+*Last updated: Session 5 — Widget tests + splash screen + app icon*

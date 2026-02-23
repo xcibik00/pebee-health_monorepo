@@ -6,10 +6,12 @@ import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/screens/email_verification_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
 
 // ── Route names ────────────────────────────────────────────────────────────
 
 abstract final class AppRoutes {
+  static const String splash = '/';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String emailVerification = '/email-verification';
@@ -22,13 +24,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
 
   return GoRouter(
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.splash,
     refreshListenable: _AuthStateListenable(ref),
     redirect: (context, state) {
+      final isLoading = authState.isLoading;
       final isLoggedIn = authState.valueOrNull != null;
+      final isOnSplash = state.matchedLocation == AppRoutes.splash;
       final isOnAuthRoute = state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.signup ||
           state.matchedLocation == AppRoutes.emailVerification;
+
+      // While auth is loading, stay on (or redirect to) splash
+      if (isLoading) {
+        return isOnSplash ? null : AppRoutes.splash;
+      }
+
+      // Auth resolved — redirect away from splash
+      if (isOnSplash) {
+        return isLoggedIn ? AppRoutes.home : AppRoutes.login;
+      }
 
       // Logged-in user trying to access auth pages → send to home
       if (isLoggedIn && isOnAuthRoute) {
@@ -43,6 +57,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null; // no redirect needed
     },
     routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
