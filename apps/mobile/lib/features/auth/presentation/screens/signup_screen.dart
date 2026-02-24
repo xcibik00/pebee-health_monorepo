@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
@@ -26,6 +28,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   /// toggles both fields at once.
   bool _obscurePasswords = true;
 
+  bool _termsAccepted = false;
+  bool _privacyAccepted = false;
+  bool _submitAttempted = false;
+
+  final _termsLinkRecognizer = TapGestureRecognizer();
+  final _privacyLinkRecognizer = TapGestureRecognizer();
+
+  static final _termsUrl = Uri.parse('https://pebeehealth.com/terms');
+  static final _privacyUrl = Uri.parse('https://pebeehealth.com/privacy');
+
+  @override
+  void initState() {
+    super.initState();
+    _termsLinkRecognizer.onTap = () => launchUrl(_termsUrl);
+    _privacyLinkRecognizer.onTap = () => launchUrl(_privacyUrl);
+  }
+
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -33,11 +52,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _termsLinkRecognizer.dispose();
+    _privacyLinkRecognizer.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() => _submitAttempted = true);
+    final formValid = _formKey.currentState!.validate();
+    if (!formValid || !_termsAccepted || !_privacyAccepted) return;
     await ref.read(authNotifierProvider.notifier).signUp(
           email: _emailController.text,
           password: _passwordController.text,
@@ -182,6 +205,32 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+
+                // ── Terms & Conditions checkbox ─────────────────────────
+                _buildConsentCheckbox(
+                  value: _termsAccepted,
+                  onChanged: (v) =>
+                      setState(() => _termsAccepted = v ?? false),
+                  prefixKey: 'auth.signup.termsPrefix',
+                  linkKey: 'auth.signup.termsLinkText',
+                  recognizer: _termsLinkRecognizer,
+                  errorKey: 'validation.termsRequired',
+                  showError: _submitAttempted && !_termsAccepted,
+                ),
+                const SizedBox(height: 8),
+
+                // ── Privacy Policy checkbox ─────────────────────────────
+                _buildConsentCheckbox(
+                  value: _privacyAccepted,
+                  onChanged: (v) =>
+                      setState(() => _privacyAccepted = v ?? false),
+                  prefixKey: 'auth.signup.privacyPrefix',
+                  linkKey: 'auth.signup.privacyLinkText',
+                  recognizer: _privacyLinkRecognizer,
+                  errorKey: 'validation.privacyRequired',
+                  showError: _submitAttempted && !_privacyAccepted,
+                ),
                 const SizedBox(height: 24),
 
                 // ── Generic error banner ──────────────────────────────────
@@ -242,6 +291,63 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Builds a consent checkbox row with an inline tappable link.
+  Widget _buildConsentCheckbox({
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+    required String prefixKey,
+    required String linkKey,
+    required TapGestureRecognizer recognizer,
+    required String errorKey,
+    required bool showError,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Checkbox(
+              value: value,
+              onChanged: onChanged,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => onChanged(!value),
+                child: Text.rich(
+                  TextSpan(
+                    style: Theme.of(context).textTheme.bodySmall,
+                    children: [
+                      TextSpan(text: prefixKey.tr()),
+                      TextSpan(
+                        text: linkKey.tr(),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: recognizer,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (showError)
+          Padding(
+            padding: const EdgeInsets.only(left: 48, top: 4),
+            child: Text(
+              errorKey.tr(),
+              style: const TextStyle(color: AppColors.error, fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 }

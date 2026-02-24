@@ -29,7 +29,11 @@
       "createButton": "Konto erstellen",
       "alreadyHaveAccount": "Schon ein Konto?",
       "signIn": "Anmelden",
-      "error": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
+      "error": "Registrierung fehlgeschlagen. Bitte versuche es erneut.",
+      "termsPrefix": "Ich akzeptiere die ",
+      "termsLinkText": "AGB",
+      "privacyPrefix": "Ich akzeptiere die ",
+      "privacyLinkText": "Datenschutzerklärung"
     },
     "verification": {
       "title": "E-Mail überprüfen",
@@ -48,6 +52,14 @@
       "attemptsLeft": "Verbleibende Versuche: {remaining}"
     }
   },
+  "consent": {
+    "tracking": {
+      "title": "Analyse & Tracking",
+      "message": "Wir m\u00f6chten Analysen verwenden, um die App zu verbessern und relevante Gesundheitsinformationen bereitzustellen. Ihre Daten werden sicher verarbeitet und niemals an Dritte verkauft.",
+      "allow": "Erlauben",
+      "deny": "Nicht jetzt"
+    }
+  },
   "validation": {
     "emailRequired": "E-Mail eingeben",
     "emailInvalid": "Gültige E-Mail eingeben",
@@ -57,6 +69,8 @@
     "lastNameRequired": "Nachname eingeben",
     "passwordMismatch": "Passwörter stimmen nicht überein",
     "otpRequired": "Bestätigungscode eingeben",
-    "otpInvalid": "Code muss 8 Ziffern haben"
+    "otpInvalid": "Code muss 8 Ziffern haben",
+    "termsRequired": "Sie müssen die AGB akzeptieren",
+    "privacyRequired": "Sie müssen die Datenschutzerklärung akzeptieren"
   }
 }

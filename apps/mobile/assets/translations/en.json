@@ -29,7 +29,11 @@
       "createButton": "Create account",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in",
-      "error": "Registration failed. Please try again."
+      "error": "Registration failed. Please try again.",
+      "termsPrefix": "I agree to the ",
+      "termsLinkText": "Terms & Conditions",
+      "privacyPrefix": "I agree to the ",
+      "privacyLinkText": "Privacy Policy"
     },
     "verification": {
       "title": "Check your email",
@@ -48,6 +52,14 @@
       "attemptsLeft": "Attempts remaining: {remaining}"
     }
   },
+  "consent": {
+    "tracking": {
+      "title": "Analytics & tracking",
+      "message": "We'd like to use analytics to improve the app experience and provide relevant health insights. Your data is handled securely and never sold to third parties.",
+      "allow": "Allow",
+      "deny": "Not now"
+    }
+  },
   "validation": {
     "emailRequired": "Enter your email",
     "emailInvalid": "Enter a valid email",
@@ -57,6 +69,8 @@
     "lastNameRequired": "Enter your last name",
     "passwordMismatch": "Passwords do not match",
     "otpRequired": "Enter the verification code",
-    "otpInvalid": "Code must be 8 digits"
+    "otpInvalid": "Code must be 8 digits",
+    "termsRequired": "You must accept the Terms & Conditions",
+    "privacyRequired": "You must accept the Privacy Policy"
   }
 }

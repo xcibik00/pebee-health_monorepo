@@ -19,7 +19,7 @@ Future<void> main() async {
   await dotenv.load(fileName: '.env');
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    anonKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
   );
 
   // Remove native splash — Flutter-level splash screen takes over

@@ -29,7 +29,11 @@
       "createButton": "Vytvoriť účet",
       "alreadyHaveAccount": "Už máš účet?",
       "signIn": "Prihlásiť sa",
-      "error": "Registrácia sa nepodarila. Skús to znova."
+      "error": "Registrácia sa nepodarila. Skús to znova.",
+      "termsPrefix": "Súhlasím s ",
+      "termsLinkText": "Obchodnými podmienkami",
+      "privacyPrefix": "Súhlasím so ",
+      "privacyLinkText": "Zásadami ochrany súkromia"
     },
     "verification": {
       "title": "Skontroluj email",
@@ -48,6 +52,14 @@
       "attemptsLeft": "Zostávajúce pokusy: {remaining}"
     }
   },
+  "consent": {
+    "tracking": {
+      "title": "Analytika a sledovanie",
+      "message": "Chceli by sme pou\u017e\u00edva\u0165 analytiku na zlep\u0161enie aplik\u00e1cie a poskytovanie relevantn\u00fdch zdravotn\u00fdch inform\u00e1ci\u00ed. Va\u0161e \u00fadaje s\u00fa bezpe\u010dne spracovan\u00e9 a nikdy nie s\u00fa pred\u00e1van\u00e9 tret\u00edm stran\u00e1m.",
+      "allow": "Povoli\u0165",
+      "deny": "Teraz nie"
+    }
+  },
   "validation": {
     "emailRequired": "Zadaj email",
     "emailInvalid": "Zadaj platný email",
@@ -57,6 +69,8 @@
     "lastNameRequired": "Zadaj priezvisko",
     "passwordMismatch": "Heslá sa nezhodujú",
     "otpRequired": "Zadaj overovací kód",
-    "otpInvalid": "Kód musí mať 8 číslic"
+    "otpInvalid": "Kód musí mať 8 číslic",
+    "termsRequired": "Musíte súhlasiť s Obchodnými podmienkami",
+    "privacyRequired": "Musíte súhlasiť so Zásadami ochrany súkromia"
   }
 }

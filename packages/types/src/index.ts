@@ -3,3 +3,5 @@
 // Never duplicate these definitions inside individual apps.
 
 export * from './user';
+export * from './profile';
+export * from './user-consent';

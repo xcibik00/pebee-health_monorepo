@@ -50,6 +50,15 @@ dependencies:
   # Internationalisation — JSON key files, supports multiple languages
   easy_localization: ^3.0.7
 
+  # HTTP client for NestJS backend API calls
+  http: ^1.2.0
+
+  # iOS App Tracking Transparency — native ATT popup
+  app_tracking_transparency: ^2.0.6
+
+  # Opens external URLs (Terms & Conditions, Privacy Policy links)
+  url_launcher: ^6.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -121,7 +130,7 @@ flutter_native_splash:
   image: assets/logo/splash_logo.png
   android_12:
     color: "#F2EDE7"
-    image: assets/logo/splash_logo.png
+    image: assets/logo/app_icon_foreground.png
   fullscreen: true
   android: true
   ios: true

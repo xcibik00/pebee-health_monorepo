@@ -37,6 +37,14 @@ void main() {
     await tester.enterText(fields.at(4), 'password123'); // confirm
   }
 
+  /// Checks both consent checkboxes (Terms & Privacy).
+  Future<void> checkBothConsents(WidgetTester tester) async {
+    final checkboxes = find.byType(Checkbox);
+    await tester.tap(checkboxes.at(0));
+    await tester.tap(checkboxes.at(1));
+    await tester.pump();
+  }
+
   group('SignupScreen', () {
     testWidgets('renders all expected elements', (tester) async {
       await pumpSignupScreen(tester);
@@ -50,6 +58,8 @@ void main() {
       expect(find.text('auth.signup.confirmPasswordLabel'), findsOneWidget);
       expect(find.text('auth.signup.createButton'), findsOneWidget);
       expect(find.text('auth.signup.signIn'), findsOneWidget);
+      // Two consent checkboxes (terms + privacy)
+      expect(find.byType(Checkbox), findsNWidgets(2));
     });
 
     testWidgets('empty first name shows validation error', (tester) async {
@@ -62,6 +72,7 @@ void main() {
       await tester.enterText(fields.at(3), 'password123');
       await tester.enterText(fields.at(4), 'password123');
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
@@ -78,6 +89,7 @@ void main() {
       await tester.enterText(fields.at(3), 'short'); // < 8 chars
       await tester.enterText(fields.at(4), 'short');
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
@@ -94,6 +106,7 @@ void main() {
       await tester.enterText(fields.at(3), 'password123');
       await tester.enterText(fields.at(4), 'different99');
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
@@ -103,7 +116,9 @@ void main() {
     testWidgets('valid form calls signUp with correct args', (tester) async {
       await pumpSignupScreen(tester);
       await fillValidForm(tester);
+      await checkBothConsents(tester);
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
@@ -119,7 +134,9 @@ void main() {
         (tester) async {
       await pumpSignupScreen(tester);
       await fillValidForm(tester);
+      await checkBothConsents(tester);
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
@@ -131,11 +148,62 @@ void main() {
 
       await pumpSignupScreen(tester);
       await fillValidForm(tester);
+      await checkBothConsents(tester);
 
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
       await tester.pumpAndSettle();
 
       expect(find.text('auth.signup.error'), findsOneWidget);
+    });
+
+    testWidgets('submit blocked when terms checkbox unchecked',
+        (tester) async {
+      await pumpSignupScreen(tester);
+      await fillValidForm(tester);
+
+      // Only check privacy, leave terms unchecked
+      final checkboxes = find.byType(Checkbox);
+      await tester.tap(checkboxes.at(1));
+      await tester.pump();
+
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
+      await tester.tap(find.text('auth.signup.createButton'));
+      await tester.pumpAndSettle();
+
+      expect(fakeNotifier.signUpCalled, isFalse);
+      expect(find.text('validation.termsRequired'), findsOneWidget);
+    });
+
+    testWidgets('submit blocked when privacy checkbox unchecked',
+        (tester) async {
+      await pumpSignupScreen(tester);
+      await fillValidForm(tester);
+
+      // Only check terms, leave privacy unchecked
+      final checkboxes = find.byType(Checkbox);
+      await tester.tap(checkboxes.at(0));
+      await tester.pump();
+
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
+      await tester.tap(find.text('auth.signup.createButton'));
+      await tester.pumpAndSettle();
+
+      expect(fakeNotifier.signUpCalled, isFalse);
+      expect(find.text('validation.privacyRequired'), findsOneWidget);
+    });
+
+    testWidgets('submit succeeds when both checkboxes checked',
+        (tester) async {
+      await pumpSignupScreen(tester);
+      await fillValidForm(tester);
+      await checkBothConsents(tester);
+
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
+      await tester.tap(find.text('auth.signup.createButton'));
+      await tester.pumpAndSettle();
+
+      expect(fakeNotifier.signUpCalled, isTrue);
     });
 
     testWidgets('eye icon toggles both password fields', (tester) async {
