@@ -66,6 +66,17 @@
 			<string>UIInterfaceOrientationLandscapeLeft</string>
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.pebeehealth.mobile</string>
+				</array>
+			</dict>
+		</array>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>We use tracking to improve the app experience and provide relevant health insights.</string>
 		<key>UIStatusBarHidden</key>

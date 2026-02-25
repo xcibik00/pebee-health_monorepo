@@ -117,6 +117,33 @@ class AuthRepository {
     }
   }
 
+  /// Sends a password reset email to [email].
+  ///
+  /// The email contains a magic link that opens the app via custom URL scheme,
+  /// triggering an [AuthChangeEvent.passwordRecovery] event. The user is then
+  /// shown the new-password screen.
+  ///
+  /// Throws [AuthException] on failure (e.g. email not found).
+  Future<void> resetPasswordForEmail({required String email}) async {
+    await _supabase.auth.resetPasswordForEmail(
+      email.trim(),
+      redirectTo: 'com.pebeehealth.mobile://reset-password',
+    );
+  }
+
+  /// Updates the current user's password.
+  ///
+  /// Called after the user taps the reset link and enters a new password.
+  /// Requires an active recovery session (set by Supabase when the reset
+  /// link is opened).
+  ///
+  /// Throws [AuthException] on failure.
+  Future<void> updatePassword({required String newPassword}) async {
+    await _supabase.auth.updateUser(
+      UserAttributes(password: newPassword),
+    );
+  }
+
   /// Signs out the current user and clears the local session.
   Future<void> signOut() async {
     await _supabase.auth.signOut();

@@ -86,6 +86,28 @@ class AuthNotifier extends AsyncNotifier<void> {
     });
   }
 
+  /// Requests a password reset email for [email].
+  /// Supabase sends a magic link that opens the app via deep link.
+  Future<void> requestPasswordReset({required String email}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(authRepositoryProvider)
+          .resetPasswordForEmail(email: email);
+    });
+  }
+
+  /// Updates the password for the currently authenticated user.
+  /// Called after the user opens the reset link and enters a new password.
+  Future<void> updatePassword({required String newPassword}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(authRepositoryProvider)
+          .updatePassword(newPassword: newPassword);
+    });
+  }
+
   /// Clears any current error or loading state back to idle.
   /// Called by screens on mount to avoid showing stale errors from a
   /// previous operation (e.g. the EmailNotConfirmedException from login
@@ -105,3 +127,14 @@ class AuthNotifier extends AsyncNotifier<void> {
 
 final authNotifierProvider =
     AsyncNotifierProvider<AuthNotifier, void>(AuthNotifier.new);
+
+// ── Password recovery event ────────────────────────────────────────────────
+
+/// Emits `true` when a [AuthChangeEvent.passwordRecovery] event fires.
+/// The router listens to this to redirect the user to the reset-password
+/// screen after they tap the magic link in their email.
+final passwordRecoveryProvider = StreamProvider<bool>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return repository.authStateChanges
+      .map((state) => state.event == AuthChangeEvent.passwordRecovery);
+});

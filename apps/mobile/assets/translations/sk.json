@@ -35,6 +35,30 @@
       "privacyPrefix": "Súhlasím so ",
       "privacyLinkText": "Zásadami ochrany súkromia"
     },
+    "forgotPassword": {
+      "title": "Obnoviť heslo",
+      "subtitle": "Zadaj email na ktorý pošleme odkaz na obnovu",
+      "emailLabel": "Email",
+      "emailHint": "tvoj@email.com",
+      "sendButton": "Odoslať odkaz",
+      "successTitle": "Skontroluj email",
+      "successMessage": "Poslali sme odkaz na obnovu hesla na {email}",
+      "backToLogin": "Späť na prihlásenie",
+      "error": "Nepodarilo sa odoslať email. Skús to znova."
+    },
+    "resetPassword": {
+      "title": "Nové heslo",
+      "subtitle": "Zadaj nové heslo",
+      "passwordLabel": "Nové heslo",
+      "passwordHint": "Minimálne 8 znakov",
+      "confirmPasswordLabel": "Potvrď nové heslo",
+      "confirmPasswordHint": "Zopakuj heslo",
+      "resetButton": "Zmeniť heslo",
+      "successTitle": "Heslo zmenené",
+      "successMessage": "Tvoje heslo bolo zmenené. Teraz sa môžeš prihlásiť.",
+      "goToLogin": "Prejsť na prihlásenie",
+      "error": "Nepodarilo sa zmeniť heslo. Skús to znova."
+    },
     "verification": {
       "title": "Skontroluj email",
       "messagePre": "Poslali sme ti 8-ciferný overovací kód na",

@@ -45,6 +45,14 @@ void main() {
     await tester.pump();
   }
 
+  /// Finds the ElevatedButton and returns whether it is enabled.
+  bool isCreateButtonEnabled(WidgetTester tester) {
+    final button = tester.widget<ElevatedButton>(
+      find.widgetWithText(ElevatedButton, 'auth.signup.createButton'),
+    );
+    return button.onPressed != null;
+  }
+
   group('SignupScreen', () {
     testWidgets('renders all expected elements', (tester) async {
       await pumpSignupScreen(tester);
@@ -62,21 +70,42 @@ void main() {
       expect(find.byType(Checkbox), findsNWidgets(2));
     });
 
-    testWidgets('empty first name shows validation error', (tester) async {
+    testWidgets('create button disabled initially', (tester) async {
       await pumpSignupScreen(tester);
 
-      // Leave first name empty, fill the rest
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
+      await tester.pump();
+
+      expect(isCreateButtonEnabled(tester), isFalse);
+    });
+
+    testWidgets('create button disabled when first name empty',
+        (tester) async {
+      await pumpSignupScreen(tester);
+
+      // Fill everything except first name
       final fields = find.byType(TextFormField);
       await tester.enterText(fields.at(1), 'Doe');
       await tester.enterText(fields.at(2), 'john@example.com');
       await tester.enterText(fields.at(3), 'password123');
       await tester.enterText(fields.at(4), 'password123');
+      await checkBothConsents(tester);
 
       await tester.ensureVisible(find.text('auth.signup.createButton'));
-      await tester.tap(find.text('auth.signup.createButton'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text('validation.firstNameRequired'), findsOneWidget);
+      expect(isCreateButtonEnabled(tester), isFalse);
+    });
+
+    testWidgets('create button enabled when form complete', (tester) async {
+      await pumpSignupScreen(tester);
+      await fillValidForm(tester);
+      await checkBothConsents(tester);
+
+      await tester.ensureVisible(find.text('auth.signup.createButton'));
+      await tester.pump();
+
+      expect(isCreateButtonEnabled(tester), isTrue);
     });
 
     testWidgets('password too short shows validation error', (tester) async {
@@ -88,6 +117,7 @@ void main() {
       await tester.enterText(fields.at(2), 'john@example.com');
       await tester.enterText(fields.at(3), 'short'); // < 8 chars
       await tester.enterText(fields.at(4), 'short');
+      await checkBothConsents(tester);
 
       await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
@@ -105,6 +135,7 @@ void main() {
       await tester.enterText(fields.at(2), 'john@example.com');
       await tester.enterText(fields.at(3), 'password123');
       await tester.enterText(fields.at(4), 'different99');
+      await checkBothConsents(tester);
 
       await tester.ensureVisible(find.text('auth.signup.createButton'));
       await tester.tap(find.text('auth.signup.createButton'));
@@ -157,7 +188,7 @@ void main() {
       expect(find.text('auth.signup.error'), findsOneWidget);
     });
 
-    testWidgets('submit blocked when terms checkbox unchecked',
+    testWidgets('create button disabled when terms checkbox unchecked',
         (tester) async {
       await pumpSignupScreen(tester);
       await fillValidForm(tester);
@@ -168,14 +199,12 @@ void main() {
       await tester.pump();
 
       await tester.ensureVisible(find.text('auth.signup.createButton'));
-      await tester.tap(find.text('auth.signup.createButton'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(fakeNotifier.signUpCalled, isFalse);
-      expect(find.text('validation.termsRequired'), findsOneWidget);
+      expect(isCreateButtonEnabled(tester), isFalse);
     });
 
-    testWidgets('submit blocked when privacy checkbox unchecked',
+    testWidgets('create button disabled when privacy checkbox unchecked',
         (tester) async {
       await pumpSignupScreen(tester);
       await fillValidForm(tester);
@@ -186,11 +215,9 @@ void main() {
       await tester.pump();
 
       await tester.ensureVisible(find.text('auth.signup.createButton'));
-      await tester.tap(find.text('auth.signup.createButton'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(fakeNotifier.signUpCalled, isFalse);
-      expect(find.text('validation.privacyRequired'), findsOneWidget);
+      expect(isCreateButtonEnabled(tester), isFalse);
     });
 
     testWidgets('submit succeeds when both checkboxes checked',

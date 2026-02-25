@@ -83,6 +83,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
+        centerTitle: true,
         title: const Text(
           'Pebee Health',
           style: TextStyle(

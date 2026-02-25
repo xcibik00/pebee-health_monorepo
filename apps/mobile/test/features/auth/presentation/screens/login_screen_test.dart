@@ -122,6 +122,16 @@ void main() {
       expect(find.text('auth.login.error'), findsOneWidget);
     });
 
+    testWidgets('forgot password navigates to forgot password screen',
+        (tester) async {
+      await pumpLoginScreen(tester);
+
+      await tester.tap(find.text('auth.login.forgotPassword'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('FORGOT_PASSWORD_ROUTE'), findsOneWidget);
+    });
+
     testWidgets(
         'EmailNotConfirmedException navigates to verification screen',
         (tester) async {

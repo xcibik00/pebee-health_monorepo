@@ -80,6 +80,11 @@ root/                          ← monorepo, single git repo
 - **ATT popup via `ref.listen` in `build()`** — Riverpod requires `ref.listen` inside `build()`, not in `initState()`; consentsProvider depends on authStateProvider to prevent 401s before login
 - **T&C + Privacy checkboxes on signup** — required checkboxes with inline tappable links to placeholder URLs; consent records saved on home screen after first login; SQL migration for existing users
 - **Android 12+ splash uses bars icon** — `app_icon_foreground.png` (bars only) for `android_12` config; full logo for pre-12 and iOS; prevents text clipping in 240dp circle
+- **Signup button disabled until form complete** — `_isFormComplete` getter checks all 5 text fields non-empty + both consent checkboxes checked; controller listeners trigger `setState` for real-time button state; full validation still runs on tap
+- **Language switcher: compact PopupMenuButton** — flag + ISO code chip opens dropdown with full language names + checkmark on active; replaces horizontal 4-button row; present on login, signup, forgot-password, and reset-password screens
+- **Deep links via custom URL scheme `com.pebeehealth.mobile`** — registered in iOS `CFBundleURLTypes` (Info.plist) and Android intent-filter (AndroidManifest.xml); used by Supabase password reset redirect; `com.pebeehealth.mobile://reset-password` added to Supabase Redirect URLs
+- **Password reset flow: client-side only** — no backend changes needed; `AuthRepository.resetPasswordForEmail()` → Supabase sends magic link email → deep link opens app → `AuthChangeEvent.passwordRecovery` detected by `passwordRecoveryProvider` → router redirects to `/reset-password` → `AuthRepository.updatePassword()` via `UserAttributes(password:)` → sign out → login; security (link expiry, single-use, rate limiting) handled entirely by Supabase
+- **`passwordRecoveryProvider` (StreamProvider)** — watches `authStateChanges` for `AuthChangeEvent.passwordRecovery`; router's `_AuthStateListenable` also listens to this provider so redirect fires immediately on deep link
 
 ---
 
@@ -87,14 +92,12 @@ root/                          ← monorepo, single git repo
 
 > Update this at the start/end of every session.
 
-**Status:** Backend running + mobile app working on both iOS & Android with full auth flow, ATT consent, T&C/Privacy checkboxes
-**Next up (Session 7) — in order:**
-1. **Reset password flow** — "Forgot password?" on login screen → email input → Supabase `resetPasswordForEmail()` → deep link back to app → new password screen → `updateUser()`. Needs both mobile screens and backend support if applicable.
+**Status:** Full auth flow complete including password reset with deep links, all UX polish done (51 Flutter + 14 backend = 65 tests passing)
+**Next up (Session 8):**
+1. **Test reset password flow on device** — verify deep link opens app on both iOS and Android, full flow from "Forgot password?" to successful password change (implemented in Session 7, not yet tested on device)
 
 **Backlog (noted, not yet planned):**
-- **Signup button disabled until form complete** — "Create account" button stays greyed out until all required fields are filled and both T&C/Privacy checkboxes are checked. Currently button is always active and shows validation errors on tap.
 - **Consent withdrawal in Settings** — allow users to opt out of ATT/analytics from a settings screen (`granted: false`). T&C and privacy are mandatory (without them user cannot use the app), while ATT opt-out is OK (just disables analytics).
-- **Language switcher redesign** — current 4-button layout on login is too prominent; change to a compact dropdown. Also add language switcher to signup screen. Keep in mind locale is sent to DB on signup (and possibly login).
 - **Firebase Analytics** — depends on ATT consent; deferred until ATT is implemented
 - **User profile screen** — view/edit profile info, change locale, manage consents
 
@@ -206,6 +209,44 @@ root/                          ← monorepo, single git repo
 - 401 Unauthorized: `consentsProvider` firing before auth — added `authStateProvider` dependency, returns empty list when no user
 - 401 persisting: JWT_SECRET wrong — Supabase had migrated to ES256; rewrote JWT strategy to use JWKS
 
+### Session 7 — Visual parity, signup UX, language switcher, password reset
+
+**iOS/Android visual parity**
+- Added `centerTitle: true` to home screen AppBar — title now centered on both platforms
+- Splash screen: confirmed Android 12+ 240dp circle is a Material 3 platform limitation; current bars-only icon for `android_12` is the correct approach
+
+**Signup button disabled until form complete**
+- `_isFormComplete` computed getter checks all 5 text fields non-empty + both consent checkboxes
+- Controller listeners (`addListener`) on all 5 `TextEditingController`s trigger `setState` for real-time updates
+- ElevatedButton `onPressed` is `null` when form incomplete or loading — button greyed out automatically
+- Updated 14 signup widget tests to reflect disabled-button behavior
+
+**Language switcher redesign**
+- Rewrote `LanguageSwitcher` from horizontal 4-button row to compact `PopupMenuButton<Locale>`
+- Trigger: flag + ISO code chip (e.g. "🇬🇧 EN" with dropdown arrow)
+- Menu: 4 items with flag + full language name + checkmark on active language
+- Added `name` field to `_Language` data model for display names (Slovenčina, English, Українська, Deutsch)
+- Added `LanguageSwitcher` to signup screen AppBar `actions`
+- Language switcher now present on all auth screens: login, signup, forgot-password, reset-password
+
+**Reset password flow (51 Flutter tests, all passing)**
+- `AuthRepository`: `resetPasswordForEmail()` (sends magic link with `redirectTo` to custom URL scheme), `updatePassword()` (calls `updateUser` with new password)
+- `AuthNotifier`: `requestPasswordReset()`, `updatePassword()` methods
+- `passwordRecoveryProvider` (StreamProvider) — watches for `AuthChangeEvent.passwordRecovery` events
+- Deep link config: `CFBundleURLTypes` with `com.pebeehealth.mobile` scheme in Info.plist; intent-filter in AndroidManifest.xml
+- Router: 2 new routes (`/forgot-password`, `/reset-password`), recovery redirect logic, `_AuthStateListenable` listens to both `authStateProvider` and `passwordRecoveryProvider`
+- `ForgotPasswordScreen` — email input → success view with email icon + "Check your email" message, back button → login
+- `ResetPasswordScreen` — new password + confirm (shared eye toggle via `PasswordField`), success view with check icon → sign out + go to login, back button (signs out + goes to login)
+- Login screen: "Forgot password?" `TextButton` wired to `/forgot-password` (was `onPressed: null`)
+- Translations: `forgotPassword.*` and `resetPassword.*` keys added to all 4 languages (EN, SK, UK, DE)
+- `FakeAuthNotifier`: tracking for `requestPasswordReset` and `updatePassword` with configurable errors
+- Test helper: `/forgot-password` and `/reset-password` stub routes added to `pumpApp`
+- 7 forgot-password tests (render, validation, submit, success view, error banner, back navigation)
+- 8 reset-password tests (render, validation, submit, success view, error banner, eye toggle)
+- 1 new login test (forgot password navigation)
+- Supabase config: `com.pebeehealth.mobile://reset-password` added to Redirect URLs (user action)
+- **Not yet tested on device** — deep link flow needs manual testing on iOS/Android
+
 ### Session 5 — Widget tests + splash screen + app icon
 **Widget tests (30 tests, all passing)**
 - Test infrastructure: `test/helpers/test_app.dart` (`pumpApp` helper with EasyLocalization + GoRouter + Riverpod), `test/helpers/mocks.dart` (`FakeAuthNotifier`)
@@ -304,6 +345,7 @@ You can be asked to switch roles mid-conversation:
 - No business logic in widgets — use providers/blocs/cubits
 - Handle loading, error, and empty states in every UI component
 - Use `const` constructors wherever possible
+- **Visual parity across iOS and Android** — every screen must look the same on both platforms. Always verify layout, alignment, and assets render identically. Use explicit alignment/centering rather than relying on platform defaults (e.g. `centerTitle: true` on AppBar)
 
 ---
 
@@ -365,7 +407,10 @@ A task or feature is **NOT done** until all of the following are true:
 | Consent providers | `apps/mobile/lib/features/consent/providers/consent_provider.dart` |
 | Tracking consent service | `apps/mobile/lib/features/consent/services/tracking_consent_service.dart` |
 | Home screen | `apps/mobile/lib/features/home/presentation/screens/home_screen.dart` |
+| Forgot password screen | `apps/mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart` |
+| Reset password screen | `apps/mobile/lib/features/auth/presentation/screens/reset_password_screen.dart` |
+| Language switcher (compact) | `apps/mobile/lib/core/widgets/language_switcher.dart` |
 
 ---
 
-*Last updated: Session 6 — Backend scaffold + ATT consent + iOS setup + T&C checkboxes*
+*Last updated: Session 7 — Visual parity, signup UX, language switcher, password reset*

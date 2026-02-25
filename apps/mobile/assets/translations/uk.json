@@ -35,6 +35,30 @@
       "privacyPrefix": "Я погоджуюсь з ",
       "privacyLinkText": "Політикою конфіденційності"
     },
+    "forgotPassword": {
+      "title": "Скинути пароль",
+      "subtitle": "Введіть email для отримання посилання",
+      "emailLabel": "Електронна пошта",
+      "emailHint": "ваш@email.com",
+      "sendButton": "Надіслати посилання",
+      "successTitle": "Перевірте пошту",
+      "successMessage": "Ми надіслали посилання для скидання пароля на {email}",
+      "backToLogin": "Назад до входу",
+      "error": "Не вдалося надіслати email. Спробуйте ще раз."
+    },
+    "resetPassword": {
+      "title": "Новий пароль",
+      "subtitle": "Введіть новий пароль",
+      "passwordLabel": "Новий пароль",
+      "passwordHint": "Мінімум 8 символів",
+      "confirmPasswordLabel": "Підтвердіть новий пароль",
+      "confirmPasswordHint": "Повторіть пароль",
+      "resetButton": "Змінити пароль",
+      "successTitle": "Пароль змінено",
+      "successMessage": "Ваш пароль змінено. Тепер ви можете увійти.",
+      "goToLogin": "Перейти до входу",
+      "error": "Не вдалося змінити пароль. Спробуйте ще раз."
+    },
     "verification": {
       "title": "Перевірте пошту",
       "messagePre": "Ми надіслали 8-значний код підтвердження на",

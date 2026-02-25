@@ -50,6 +50,16 @@ Future<GoRouter> pumpApp(
         builder: (_, __) => const Scaffold(body: Text('VERIFY_ROUTE')),
       ),
       GoRoute(
+        path: '/forgot-password',
+        builder: (_, __) =>
+            const Scaffold(body: Text('FORGOT_PASSWORD_ROUTE')),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        builder: (_, __) =>
+            const Scaffold(body: Text('RESET_PASSWORD_ROUTE')),
+      ),
+      GoRoute(
         path: '/home',
         builder: (_, __) => const Scaffold(body: Text('HOME_ROUTE')),
       ),

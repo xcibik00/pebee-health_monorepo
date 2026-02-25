@@ -35,6 +35,30 @@
       "privacyPrefix": "Ich akzeptiere die ",
       "privacyLinkText": "Datenschutzerklärung"
     },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Gib deine E-Mail ein, um einen Link zu erhalten",
+      "emailLabel": "E-Mail",
+      "emailHint": "deine@email.com",
+      "sendButton": "Link senden",
+      "successTitle": "E-Mail prüfen",
+      "successMessage": "Wir haben einen Link zum Zurücksetzen an {email} gesendet",
+      "backToLogin": "Zurück zur Anmeldung",
+      "error": "E-Mail konnte nicht gesendet werden. Bitte versuche es erneut."
+    },
+    "resetPassword": {
+      "title": "Neues Passwort",
+      "subtitle": "Gib dein neues Passwort ein",
+      "passwordLabel": "Neues Passwort",
+      "passwordHint": "Mindestens 8 Zeichen",
+      "confirmPasswordLabel": "Neues Passwort bestätigen",
+      "confirmPasswordHint": "Passwort wiederholen",
+      "resetButton": "Passwort zurücksetzen",
+      "successTitle": "Passwort geändert",
+      "successMessage": "Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.",
+      "goToLogin": "Zur Anmeldung",
+      "error": "Passwort konnte nicht geändert werden. Bitte versuche es erneut."
+    },
     "verification": {
       "title": "E-Mail überprüfen",
       "messagePre": "Wir haben einen 8-stelligen Bestätigungscode gesendet an",

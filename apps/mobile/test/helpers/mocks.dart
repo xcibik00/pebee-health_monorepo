@@ -22,6 +22,12 @@ class FakeAuthNotifier extends AuthNotifier {
   /// When non-null, [resendOtp] sets the state to [AsyncError] with this value.
   Object? resendOtpError;
 
+  /// When non-null, [requestPasswordReset] sets the state to [AsyncError].
+  Object? requestPasswordResetError;
+
+  /// When non-null, [updatePassword] sets the state to [AsyncError].
+  Object? updatePasswordError;
+
   // ── Call tracking ─────────────────────────────────────────────────────────
 
   bool signInCalled = false;
@@ -40,6 +46,12 @@ class FakeAuthNotifier extends AuthNotifier {
 
   bool resendOtpCalled = false;
   String? lastResendEmail;
+
+  bool requestPasswordResetCalled = false;
+  String? lastResetEmail;
+
+  bool updatePasswordCalled = false;
+  String? lastNewPassword;
 
   bool resetCalled = false;
 
@@ -112,6 +124,32 @@ class FakeAuthNotifier extends AuthNotifier {
     await Future<void>.delayed(Duration.zero);
     if (resendOtpError != null) {
       state = AsyncError(resendOtpError!, StackTrace.current);
+    } else {
+      state = const AsyncData(null);
+    }
+  }
+
+  @override
+  Future<void> requestPasswordReset({required String email}) async {
+    requestPasswordResetCalled = true;
+    lastResetEmail = email;
+    state = const AsyncLoading();
+    await Future<void>.delayed(Duration.zero);
+    if (requestPasswordResetError != null) {
+      state = AsyncError(requestPasswordResetError!, StackTrace.current);
+    } else {
+      state = const AsyncData(null);
+    }
+  }
+
+  @override
+  Future<void> updatePassword({required String newPassword}) async {
+    updatePasswordCalled = true;
+    lastNewPassword = newPassword;
+    state = const AsyncLoading();
+    await Future<void>.delayed(Duration.zero);
+    if (updatePasswordError != null) {
+      state = AsyncError(updatePasswordError!, StackTrace.current);
     } else {
       state = const AsyncData(null);
     }

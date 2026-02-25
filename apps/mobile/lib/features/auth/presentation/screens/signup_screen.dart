@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/language_switcher.dart';
 import '../../providers/auth_provider.dart';
 import '../widgets/password_field.dart';
 
@@ -38,20 +39,48 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   static final _termsUrl = Uri.parse('https://pebeehealth.com/terms');
   static final _privacyUrl = Uri.parse('https://pebeehealth.com/privacy');
 
+  /// Whether all required fields are filled and both checkboxes checked.
+  /// Used to enable/disable the submit button in real-time.
+  bool get _isFormComplete =>
+      _firstNameController.text.trim().isNotEmpty &&
+      _lastNameController.text.trim().isNotEmpty &&
+      _emailController.text.trim().isNotEmpty &&
+      _passwordController.text.isNotEmpty &&
+      _confirmPasswordController.text.isNotEmpty &&
+      _termsAccepted &&
+      _privacyAccepted;
+
+  void _onFormChanged() => setState(() {});
+
   @override
   void initState() {
     super.initState();
     _termsLinkRecognizer.onTap = () => launchUrl(_termsUrl);
     _privacyLinkRecognizer.onTap = () => launchUrl(_privacyUrl);
+
+    for (final controller in [
+      _firstNameController,
+      _lastNameController,
+      _emailController,
+      _passwordController,
+      _confirmPasswordController,
+    ]) {
+      controller.addListener(_onFormChanged);
+    }
   }
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    for (final controller in [
+      _firstNameController,
+      _lastNameController,
+      _emailController,
+      _passwordController,
+      _confirmPasswordController,
+    ]) {
+      controller.removeListener(_onFormChanged);
+      controller.dispose();
+    }
     _termsLinkRecognizer.dispose();
     _privacyLinkRecognizer.dispose();
     super.dispose();
@@ -89,6 +118,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               color: AppColors.textPrimary),
           onPressed: () => context.go(AppRoutes.login),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -258,7 +293,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 // ── Create account button ─────────────────────────────────
                 ElevatedButton(
-                  onPressed: authAsync.isLoading ? null : _submit,
+                  onPressed:
+                      authAsync.isLoading || !_isFormComplete ? null : _submit,
                   child: authAsync.isLoading
                       ? const SizedBox(
                           height: 20,
