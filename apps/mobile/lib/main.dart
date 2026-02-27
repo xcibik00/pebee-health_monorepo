@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/providers/auth_provider.dart';
 
 Future<void> main() async {
   // Keep native splash visible until async init completes
@@ -20,6 +21,13 @@ Future<void> main() async {
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+    authOptions: const FlutterAuthClientOptions(
+      // Disable automatic deep link processing during initialisation so that
+      // auth events (especially passwordRecovery) fire AFTER Riverpod stream
+      // listeners are active. Deep links are handled manually via the
+      // deepLinkHandlerProvider in auth_provider.dart.
+      detectSessionInUri: false,
+    ),
   );
 
   // Remove native splash — Flutter-level splash screen takes over
@@ -78,6 +86,11 @@ class PebeeApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+
+    // Start deep link observer — must be after appRouterProvider so that
+    // authStateProvider + passwordRecoveryProvider stream listeners are active
+    // before any deep link is processed.
+    ref.watch(deepLinkHandlerProvider);
 
     return MaterialApp.router(
       title: 'Pebee Health',

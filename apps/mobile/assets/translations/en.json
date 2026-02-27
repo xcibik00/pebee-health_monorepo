@@ -11,7 +11,8 @@
       "noAccount": "Don't have an account?",
       "createAccount": "Create account",
       "forgotPassword": "Forgot password?",
-      "error": "Invalid email or password"
+      "error": "Invalid email or password",
+      "resetLinkExpired": "Reset link has expired. Please request a new one."
     },
     "signup": {
       "title": "Create account",
@@ -82,6 +83,28 @@
       "message": "We'd like to use analytics to improve the app experience and provide relevant health insights. Your data is handled securely and never sold to third parties.",
       "allow": "Allow",
       "deny": "Not now"
+    }
+  },
+  "dashboard": {
+    "greeting": "Hello, {firstName}!",
+    "overallProgress": "Overall progress",
+    "completedExercises": "Completed exercises",
+    "weeklyGoal": "Weekly goal",
+    "weeklyGoalProgress": "{completed}/{total} exercises",
+    "todaysExercise": "Today's exercise",
+    "exerciseTitle": "Neck and upper back",
+    "exerciseLevel": "Level 1",
+    "exerciseDuration": "20min",
+    "startExercise": "Start exercise",
+    "trainingPlan": "Training plan",
+    "more": "More",
+    "comingSoon": "Coming soon",
+    "comingSoonBadge": "Soon",
+    "tabs": {
+      "home": "Home",
+      "therapist": "Therapist",
+      "mriReader": "MRI Reader",
+      "wellbeing": "Wellbeing"
     }
   },
   "validation": {

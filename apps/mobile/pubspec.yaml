@@ -59,6 +59,10 @@ dependencies:
   # Opens external URLs (Terms & Conditions, Privacy Policy links)
   url_launcher: ^6.2.0
 
+  # Deep link handling — used explicitly for password recovery flow
+  # (transitive dep of supabase_flutter, promoted to direct for manual control)
+  app_links: ^6.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

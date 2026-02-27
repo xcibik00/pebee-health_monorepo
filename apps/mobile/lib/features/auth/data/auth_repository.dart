@@ -144,6 +144,31 @@ class AuthRepository {
     );
   }
 
+  /// Processes an incoming deep link URI that contains an auth callback.
+  ///
+  /// For PKCE flows (password recovery, magic links), the URI contains a
+  /// `code` query parameter which is exchanged for a session. This fires the
+  /// appropriate [AuthChangeEvent] (e.g. `passwordRecovery`) on
+  /// [onAuthStateChange] so that providers can react.
+  ///
+  /// Returns `true` if the URI was an auth callback that was processed,
+  /// `false` if it was not an auth-related deep link.
+  ///
+  /// Throws [AuthException] if the code exchange fails.
+  Future<bool> handleDeepLink(Uri uri) async {
+    // Only process URIs with our custom scheme that contain auth data
+    final hasAuthCode = uri.queryParameters.containsKey('code');
+    final hasAccessToken = uri.fragment.contains('access_token');
+    final hasError = uri.queryParameters.containsKey('error_description');
+
+    if (!hasAuthCode && !hasAccessToken && !hasError) {
+      return false;
+    }
+
+    await _supabase.auth.getSessionFromUrl(uri);
+    return true;
+  }
+
   /// Signs out the current user and clears the local session.
   Future<void> signOut() async {
     await _supabase.auth.signOut();

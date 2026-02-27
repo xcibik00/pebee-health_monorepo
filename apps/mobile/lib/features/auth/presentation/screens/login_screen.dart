@@ -54,6 +54,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
+    // Show snackbar if the user arrived here via an expired/invalid deep link
+    // (e.g. tapped a stale password-reset email).
+    ref.listen(deepLinkErrorProvider, (_, error) {
+      if (error != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('auth.login.resetLinkExpired'.tr()),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        // Clear so the snackbar doesn't fire again on rebuild.
+        ref.read(deepLinkErrorProvider.notifier).state = null;
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(

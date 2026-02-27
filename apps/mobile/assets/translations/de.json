@@ -11,7 +11,8 @@
       "noAccount": "Noch kein Konto?",
       "createAccount": "Registrieren",
       "forgotPassword": "Passwort vergessen?",
-      "error": "Falsche E-Mail oder Passwort"
+      "error": "Falsche E-Mail oder Passwort",
+      "resetLinkExpired": "Der Link zum Zurücksetzen ist abgelaufen. Bitte fordern Sie einen neuen an."
     },
     "signup": {
       "title": "Konto erstellen",
@@ -82,6 +83,28 @@
       "message": "Wir m\u00f6chten Analysen verwenden, um die App zu verbessern und relevante Gesundheitsinformationen bereitzustellen. Ihre Daten werden sicher verarbeitet und niemals an Dritte verkauft.",
       "allow": "Erlauben",
       "deny": "Nicht jetzt"
+    }
+  },
+  "dashboard": {
+    "greeting": "Hallo, {firstName}!",
+    "overallProgress": "Gesamtfortschritt",
+    "completedExercises": "Abgeschlossene Übungen",
+    "weeklyGoal": "Wochenziel",
+    "weeklyGoalProgress": "{completed}/{total} Übungen",
+    "todaysExercise": "Heutige Übung",
+    "exerciseTitle": "Nacken und oberer Rücken",
+    "exerciseLevel": "Level 1",
+    "exerciseDuration": "20min",
+    "startExercise": "Übung starten",
+    "trainingPlan": "Trainingsplan",
+    "more": "Mehr",
+    "comingSoon": "Demnächst",
+    "comingSoonBadge": "Bald",
+    "tabs": {
+      "home": "Home",
+      "therapist": "Therapeut",
+      "mriReader": "MRI Reader",
+      "wellbeing": "Wellbeing"
     }
   },
   "validation": {

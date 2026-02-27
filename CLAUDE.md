@@ -23,7 +23,8 @@ root/                          ← monorepo, single git repo
 ├── CLAUDE.md                  ← this file (always read first)
 ├── PLANS/                     ← all plans and architecture docs
 │   ├── 00-architecture.md
-│   └── DECISIONS.md           ← Architecture Decision Records (ADRs)
+│   ├── DECISIONS.md           ← Architecture Decision Records (ADRs)
+│   └── FEATURES.md            ← living feature specification (update every session)
 ├── apps/
 │   ├── mobile/                ← Flutter app
 │   ├── web/                   ← Next.js (customer + /admin route group)
@@ -85,6 +86,14 @@ root/                          ← monorepo, single git repo
 - **Deep links via custom URL scheme `com.pebeehealth.mobile`** — registered in iOS `CFBundleURLTypes` (Info.plist) and Android intent-filter (AndroidManifest.xml); used by Supabase password reset redirect; `com.pebeehealth.mobile://reset-password` added to Supabase Redirect URLs
 - **Password reset flow: client-side only** — no backend changes needed; `AuthRepository.resetPasswordForEmail()` → Supabase sends magic link email → deep link opens app → `AuthChangeEvent.passwordRecovery` detected by `passwordRecoveryProvider` → router redirects to `/reset-password` → `AuthRepository.updatePassword()` via `UserAttributes(password:)` → sign out → login; security (link expiry, single-use, rate limiting) handled entirely by Supabase
 - **`passwordRecoveryProvider` (StreamProvider)** — watches `authStateChanges` for `AuthChangeEvent.passwordRecovery`; router's `_AuthStateListenable` also listens to this provider so redirect fires immediately on deep link
+- **Bottom navigation via `StatefulShellRoute.indexedStack`** — GoRouter's native shell mechanism preserves tab widget state and integrates with existing auth guard/redirect logic; no separate navigation state provider needed
+- **`MainShell` as shared scaffold** — Scaffold with AppBar ("Pebee Health" + logout) + `NavigationBar` with 4 destinations; receives `StatefulNavigationShell` from GoRouter; each tab is a `StatefulShellBranch`
+- **Material 3 `NavigationBar`** — consistent with existing `useMaterial3: true` theme; Wellbeing tab has `Badge` with "Coming soon" indicator
+- **Consent logic migrated to `DashboardScreen`** — `ref.listen` + `_consentCheckDone` pattern moved verbatim from deleted `HomeScreen`; `MainShell` only handles scaffold/navigation
+- **User first name from auth metadata** — `user?.userMetadata?['first_name']` on `DashboardScreen`; no extra API call or profile provider needed
+- **`ComingSoonScreen` reusable placeholder** — `title` parameter, centered construction icon + "Coming soon" text; used by Therapist, MRI Reader, and Wellbeing tabs
+- **Design wireframes reference** — `apps/mobile/design_wireframes/` contains Figma export PNGs for dashboard, cards, navigation, exercise screens; used as visual reference for implementation
+- **Manual deep link handling via `deepLinkHandlerProvider`** — `detectSessionInUri: false` disables automatic deep link processing during `Supabase.initialize()` to prevent race condition where `AuthChangeEvent.passwordRecovery` fires before Riverpod providers are listening; `app_links` package promoted to direct dep; `deepLinkHandlerProvider` handles both cold-start (`getInitialLink()`) and warm-start (`uriLinkStream`) deep links; `AuthRepository.handleDeepLink()` calls `getSessionFromUrl()` for PKCE code exchange
 
 ---
 
@@ -92,11 +101,13 @@ root/                          ← monorepo, single git repo
 
 > Update this at the start/end of every session.
 
-**Status:** Full auth flow complete including password reset with deep links, all UX polish done (51 Flutter + 14 backend = 65 tests passing)
-**Next up (Session 8):**
-1. **Test reset password flow on device** — verify deep link opens app on both iOS and Android, full flow from "Forgot password?" to successful password change (implemented in Session 7, not yet tested on device)
+**Status:** Dashboard + bottom nav + deep link fix implemented, 69 Flutter + 14 backend = 83 tests passing
+**Next up (Session 9):**
+1. **Test password reset deep link on device** — fix implemented (manual deep link handling via `deepLinkHandlerProvider`), needs device testing once Supabase email quota resets
+2. **Test dashboard on device** — verify bottom nav, tab switching, consent popup, user first name display on both iOS and Android
 
 **Backlog (noted, not yet planned):**
+- **Splash screen parity (low priority)** — Android 12+ shows bars icon only (240dp circle limitation), iOS shows full logo (icon + brand name text). Would like to align them visually, but constrained by Material 3 splash spec on Android.
 - **Consent withdrawal in Settings** — allow users to opt out of ATT/analytics from a settings screen (`granted: false`). T&C and privacy are mandatory (without them user cannot use the app), while ATT opt-out is OK (just disables analytics).
 - **Firebase Analytics** — depends on ATT consent; deferred until ATT is implemented
 - **User profile screen** — view/edit profile info, change locale, manage consents
@@ -247,6 +258,58 @@ root/                          ← monorepo, single git repo
 - Supabase config: `com.pebeehealth.mobile://reset-password` added to Redirect URLs (user action)
 - **Not yet tested on device** — deep link flow needs manual testing on iOS/Android
 
+### Session 8 — Dashboard with bottom navigation bar
+
+**Bottom navigation shell**
+- `MainShell` — shared `Scaffold` with `NavigationBar` (4 tabs: Home, Therapist, MRI Reader, Wellbeing) + AppBar with "Pebee Health" title and logout button
+- `StatefulShellRoute.indexedStack` in GoRouter — preserves tab state, integrates with existing auth guard
+- Routes: `/home/dashboard`, `/home/therapist`, `/home/mri-reader`, `/home/wellbeing`
+- Redirect targets updated from `/home` to `/home/dashboard`
+
+**Dashboard screen**
+- `DashboardScreen` — `ConsumerStatefulWidget` with consent logic migrated from old `HomeScreen`
+- Reads user first name from `user?.userMetadata?['first_name']`
+- Composes 5 widgets: `GreetingHeader`, `StatCard` (×2 in Row), `WeeklyGoalCard`, `TodaysExerciseCard`, `TrainingPlanSection`
+- All data mocked (hardcoded stat values, exercise info, training plan days)
+
+**Dashboard widgets**
+- `GreetingHeader` — greeting text + `CircleAvatar` with first letter (or '?' fallback)
+- `StatCard` — reusable card with label, value, configurable value color
+- `WeeklyGoalCard` — progress label + `LinearProgressIndicator`
+- `TodaysExerciseCard` — grey placeholder image + exercise info + teal "Start exercise" button
+- `TrainingPlanSection` — header with "More" link + horizontal scrollable row of 7 `_DayIndicator` widgets with status icons
+
+**Placeholder tabs**
+- `ComingSoonScreen` — reusable placeholder with `title` parameter, construction icon + "Coming soon" text
+- Wellbeing tab has `Badge` widget with "Coming soon" label on navigation destination
+
+**Cleanup**
+- Deleted `features/home/` directory (old `HomeScreen`) — logic split between `DashboardScreen` (consent) and `MainShell` (scaffold/nav)
+- Translations: `dashboard.*` keys added to all 4 languages (EN, SK, UK, DE)
+- Test helpers updated with stub routes for all 4 tab paths
+
+**Widget tests (18 new, 69 total Flutter tests)**
+- `dashboard_screen_test.dart` — 6 tests (greeting, stat cards, weekly goal, exercise section, training plan, level/duration)
+- `main_shell_test.dart` — 5 tests (4 nav destinations, app bar title, logout button, tab labels, first tab content)
+- `greeting_header_test.dart` — 3 tests (greeting rendered, avatar letter, empty name fallback)
+- `stat_card_test.dart` — 2 tests (label/value, value color)
+- `coming_soon_screen_test.dart` — 2 tests (coming soon text, construction icon)
+
+**Bug fixes during testing**
+- RenderFlex overflow in `TrainingPlanSection` — wrapped day indicators in `SingleChildScrollView` + header text in `Flexible`
+- Nested `MaterialApp.router` in main shell test — rewrote to direct `tester.pumpWidget`
+- `NotInitializedError` in dashboard tests — overrode full consent provider chain (`hasTerms/hasPrivacy/hasAtt` + `consentsProvider` + `authStateProvider`)
+
+**Deep link fix (implemented, awaiting device test)**
+- User tested password reset on Android: app opens from deep link but navigates to login instead of reset-password
+- Root cause: `Supabase.initialize()` processes deep link during startup and fires `AuthChangeEvent.passwordRecovery` on broadcast stream before Riverpod providers exist — event lost ([GitHub #937](https://github.com/supabase/supabase-flutter/issues/937))
+- Fix: `detectSessionInUri: false` in `FlutterAuthClientOptions` + `deepLinkHandlerProvider` manually handles links via `app_links` after providers are active
+- `AuthRepository.handleDeepLink()` calls `getSessionFromUrl()` for PKCE code exchange
+- `app_links: ^6.4.0` promoted from transitive to direct dependency
+- Android logs confirmed deep link mechanism works — original test failure was `otp_expired` (link expired/reused), not just the race condition
+- `deepLinkErrorProvider` + login screen snackbar shows "Reset link has expired" for expired/invalid links (`auth.login.resetLinkExpired`)
+- Device testing blocked by Supabase email rate limit (429) — deferred to next session
+
 ### Session 5 — Widget tests + splash screen + app icon
 **Widget tests (30 tests, all passing)**
 - Test infrastructure: `test/helpers/test_app.dart` (`pumpApp` helper with EasyLocalization + GoRouter + Riverpod), `test/helpers/mocks.dart` (`FakeAuthNotifier`)
@@ -284,6 +347,7 @@ Update this file with:
 - What was completed → move to "Completed" with brief notes
 - Update "Current Focus" to reflect what's next
 - Any new conventions or "do not do" rules discovered
+- Update `PLANS/FEATURES.md` if any features were added, changed, or removed
 
 **Trigger phrase:** When the user says *"wrap up the session"*, perform the above update automatically.
 
@@ -384,6 +448,7 @@ A task or feature is **NOT done** until all of the following are true:
 | What | Where |
 |---|---|
 | Architecture plans | `PLANS/00-architecture.md` |
+| Feature specification | `PLANS/FEATURES.md` |
 | Decision log | `PLANS/DECISIONS.md` |
 | Shared types | `packages/types/` |
 | Environment variable examples | `apps/backend/.env.example`, `apps/web/.env.example` |
@@ -406,11 +471,15 @@ A task or feature is **NOT done** until all of the following are true:
 | Consent repository (mobile) | `apps/mobile/lib/features/consent/data/consent_repository.dart` |
 | Consent providers | `apps/mobile/lib/features/consent/providers/consent_provider.dart` |
 | Tracking consent service | `apps/mobile/lib/features/consent/services/tracking_consent_service.dart` |
-| Home screen | `apps/mobile/lib/features/home/presentation/screens/home_screen.dart` |
+| Main shell (bottom nav) | `apps/mobile/lib/features/shell/presentation/screens/main_shell.dart` |
+| Dashboard screen | `apps/mobile/lib/features/dashboard/presentation/screens/dashboard_screen.dart` |
+| Dashboard widgets | `apps/mobile/lib/features/dashboard/presentation/widgets/` |
+| Coming soon placeholder | `apps/mobile/lib/features/placeholder/presentation/screens/coming_soon_screen.dart` |
+| Design wireframes | `apps/mobile/design_wireframes/` |
 | Forgot password screen | `apps/mobile/lib/features/auth/presentation/screens/forgot_password_screen.dart` |
 | Reset password screen | `apps/mobile/lib/features/auth/presentation/screens/reset_password_screen.dart` |
 | Language switcher (compact) | `apps/mobile/lib/core/widgets/language_switcher.dart` |
 
 ---
 
-*Last updated: Session 7 — Visual parity, signup UX, language switcher, password reset*
+*Last updated: Session 8 — Dashboard with bottom navigation bar*

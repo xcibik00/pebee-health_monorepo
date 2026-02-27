@@ -11,7 +11,8 @@
       "noAccount": "Nemáš účet?",
       "createAccount": "Registrovať sa",
       "forgotPassword": "Zabudol si heslo?",
-      "error": "Nesprávny email alebo heslo"
+      "error": "Nesprávny email alebo heslo",
+      "resetLinkExpired": "Odkaz na obnovenie hesla vypršal. Požiadajte o nový."
     },
     "signup": {
       "title": "Vytvoriť účet",
@@ -82,6 +83,28 @@
       "message": "Chceli by sme pou\u017e\u00edva\u0165 analytiku na zlep\u0161enie aplik\u00e1cie a poskytovanie relevantn\u00fdch zdravotn\u00fdch inform\u00e1ci\u00ed. Va\u0161e \u00fadaje s\u00fa bezpe\u010dne spracovan\u00e9 a nikdy nie s\u00fa pred\u00e1van\u00e9 tret\u00edm stran\u00e1m.",
       "allow": "Povoli\u0165",
       "deny": "Teraz nie"
+    }
+  },
+  "dashboard": {
+    "greeting": "Ahoj, {firstName}!",
+    "overallProgress": "Celkový progres",
+    "completedExercises": "Dokončených cvičení",
+    "weeklyGoal": "Týždenný cieľ",
+    "weeklyGoalProgress": "{completed}/{total} cvičení",
+    "todaysExercise": "Dnešné cvičenie",
+    "exerciseTitle": "Krk a horný chrbát",
+    "exerciseLevel": "Level 1",
+    "exerciseDuration": "20min",
+    "startExercise": "Spustiť cvičenie",
+    "trainingPlan": "Tréningový plán",
+    "more": "Viac",
+    "comingSoon": "Už čoskoro",
+    "comingSoonBadge": "Čoskoro",
+    "tabs": {
+      "home": "Domov",
+      "therapist": "Terapeut",
+      "mriReader": "MRI Reader",
+      "wellbeing": "Wellbeing"
     }
   },
   "validation": {

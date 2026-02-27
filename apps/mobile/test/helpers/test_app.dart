@@ -63,6 +63,24 @@ Future<GoRouter> pumpApp(
         path: '/home',
         builder: (_, __) => const Scaffold(body: Text('HOME_ROUTE')),
       ),
+      GoRoute(
+        path: '/home/dashboard',
+        builder: (_, __) => const Scaffold(body: Text('DASHBOARD_ROUTE')),
+      ),
+      GoRoute(
+        path: '/home/therapist',
+        builder: (_, __) => const Scaffold(body: Text('THERAPIST_ROUTE')),
+      ),
+      GoRoute(
+        path: '/home/mri-reader',
+        builder: (_, __) =>
+            const Scaffold(body: Text('MRI_READER_ROUTE')),
+      ),
+      GoRoute(
+        path: '/home/wellbeing',
+        builder: (_, __) =>
+            const Scaffold(body: Text('WELLBEING_ROUTE')),
+      ),
     ],
   );
 

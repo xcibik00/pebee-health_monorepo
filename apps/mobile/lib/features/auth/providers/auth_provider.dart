@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../data/auth_repository.dart';
@@ -137,4 +141,60 @@ final passwordRecoveryProvider = StreamProvider<bool>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   return repository.authStateChanges
       .map((state) => state.event == AuthChangeEvent.passwordRecovery);
+});
+
+// ── Deep link error ───────────────────────────────────────────────────────
+
+/// Holds the last [AuthException] from a failed deep link (e.g. expired or
+/// invalid reset link). The login screen watches this to show a snackbar.
+/// Set by [deepLinkHandlerProvider], cleared when consumed.
+final deepLinkErrorProvider = StateProvider<AuthException?>((ref) => null);
+
+// ── Deep link handler ─────────────────────────────────────────────────────
+
+/// Listens for incoming deep links and processes auth callbacks manually.
+///
+/// This provider exists because [Supabase.initialize] runs before Riverpod
+/// providers are created. If the SDK processes a deep link during init, the
+/// [AuthChangeEvent.passwordRecovery] event fires on a broadcast stream with
+/// no listeners yet — so it is lost. By disabling `detectSessionInUri` and
+/// handling links here (after providers are active), the event is captured.
+///
+/// Must be watched eagerly in the root widget (after [appRouterProvider] so
+/// that [authStateProvider] and [passwordRecoveryProvider] are already
+/// subscribed to [onAuthStateChange]).
+final deepLinkHandlerProvider = Provider<void>((ref) {
+  final repository = ref.read(authRepositoryProvider);
+  final appLinks = AppLinks();
+
+  /// Routes an incoming URI through [AuthRepository.handleDeepLink].
+  /// On failure (e.g. expired link), stores the error in
+  /// [deepLinkErrorProvider] so the UI can show feedback.
+  Future<void> processUri(Uri uri) async {
+    try {
+      await repository.handleDeepLink(uri);
+    } on AuthException catch (error) {
+      debugPrint('[DeepLink] Auth error processing $uri: ${error.message}');
+      ref.read(deepLinkErrorProvider.notifier).state = error;
+    }
+  }
+
+  // Listen for links arriving while the app is running (warm start).
+  final subscription = appLinks.uriLinkStream.listen(
+    (Uri uri) => processUri(uri),
+    onError: (Object error) {
+      debugPrint('[DeepLink] Stream error: $error');
+    },
+  );
+
+  // Handle the link that launched the app (cold start).
+  appLinks.getInitialLink().then((Uri? uri) {
+    if (uri != null) {
+      processUri(uri);
+    }
+  });
+
+  // Clean up when provider is disposed (won't happen for root providers,
+  // but good practice).
+  ref.onDispose(subscription.cancel);
 });

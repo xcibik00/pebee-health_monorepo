@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +8,9 @@ import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/screens/email_verification_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
-import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../../features/placeholder/presentation/screens/coming_soon_screen.dart';
+import '../../features/shell/presentation/screens/main_shell.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 
 // ── Route names ────────────────────────────────────────────────────────────
@@ -19,7 +22,12 @@ abstract final class AppRoutes {
   static const String emailVerification = '/email-verification';
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
-  static const String home = '/home';
+
+  // Shell tabs
+  static const String dashboard = '/home/dashboard';
+  static const String therapist = '/home/therapist';
+  static const String mriReader = '/home/mri-reader';
+  static const String wellbeing = '/home/wellbeing';
 }
 
 // ── Router provider ────────────────────────────────────────────────────────
@@ -42,6 +50,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == AppRoutes.signup ||
           state.matchedLocation == AppRoutes.emailVerification ||
           state.matchedLocation == AppRoutes.forgotPassword;
+      final isOnProtectedRoute =
+          state.matchedLocation.startsWith('/home');
 
       // While auth is loading, stay on (or redirect to) splash
       if (isLoading) {
@@ -55,18 +65,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       // Auth resolved — redirect away from splash
       if (isOnSplash) {
-        return isLoggedIn ? AppRoutes.home : AppRoutes.login;
+        return isLoggedIn ? AppRoutes.dashboard : AppRoutes.login;
       }
 
-      // Logged-in user trying to access auth pages → send to home
+      // Logged-in user trying to access auth pages → send to dashboard
       // (but allow reset-password — user has a recovery session)
       if (isLoggedIn && isOnAuthRoute) {
-        return AppRoutes.home;
+        return AppRoutes.dashboard;
       }
 
       // Not logged in trying to access protected pages → send to login
       // (allow auth routes + reset-password)
-      if (!isLoggedIn && !isOnAuthRoute && !isOnResetPassword) {
+      if (!isLoggedIn && !isOnAuthRoute && !isOnResetPassword &&
+          isOnProtectedRoute) {
         return AppRoutes.login;
       }
 
@@ -100,9 +111,52 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.resetPassword,
         builder: (context, state) => const ResetPasswordScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+
+      // ── Shell with bottom navigation ──────────────────────────────
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainShell(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.dashboard,
+                builder: (context, state) => const DashboardScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.therapist,
+                builder: (context, state) => ComingSoonScreen(
+                  title: 'dashboard.tabs.therapist'.tr(),
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.mriReader,
+                builder: (context, state) => ComingSoonScreen(
+                  title: 'dashboard.tabs.mriReader'.tr(),
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.wellbeing,
+                builder: (context, state) => ComingSoonScreen(
+                  title: 'dashboard.tabs.wellbeing'.tr(),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );
